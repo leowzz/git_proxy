@@ -1,0 +1,1 @@
+python A:\path\to\gitc.py %*
