@@ -7,8 +7,12 @@ from argparse import Namespace
 
 from loguru import logger
 
-proxy_host = "127.0.0.1"
-proxy_port = 13156
+# 获取当前脚本的绝对路径
+script_dir = os.path.dirname(os.path.abspath(__file__))
+default_conf = f"""[proxy]
+    host = 127.0.0.1
+    port = 7890
+"""
 
 
 class GitCloneProxy:
@@ -16,13 +20,11 @@ class GitCloneProxy:
     git clone proxy
     """
 
-    def __init__(self, args: Namespace, host: str, port: int):
+    def __init__(self, args: Namespace, _host: str = "127.0.0.1", _port: int = 13156):
         self.args = args
-        self.proxy_host = host
-        self.proxy_port = port
         self.proxy_conf = {
-            "http.proxy": f"http://{host}:{port}",
-            "https.proxy": f"http://{host}:{port}"
+            "http.proxy": f"http://{_host}:{_port}",
+            "https.proxy": f"http://{_host}:{_port}"
         }
 
     def set_proxy(self):
@@ -38,7 +40,6 @@ class GitCloneProxy:
     def clone(self):
         clone_cmd = f"git clone {self.args.origin} " + " ".join(self.args.git_args)
         logger.info(f"<{clone_cmd=}>")
-        # res = subprocess.run(clone_cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True, shell=True)
         # 输出到终端
         res = subprocess.run(clone_cmd, stdout=sys.stdout, stderr=sys.stderr, text=True, shell=True)
         if res.returncode == 0:
@@ -51,6 +52,7 @@ class GitCloneProxy:
         return self
 
     def __exit__(self, exc_type, exc_val, exc_tb):
+        logger.debug(f"{exc_type=}, {exc_val=}, {exc_tb=}")
         self.unset_proxy()
 
 
@@ -128,24 +130,41 @@ usage: git clone [<options>] [--] <repo> [<dir>]
 """
 
 
+def init_conf():
+    # 如果程序所在目录没有 gitc.conf 文件，则创建一个
+    conf_file_name = os.path.join(script_dir, "gitc.conf")
+    if not os.path.exists(conf_file_name):
+        with open(conf_file_name, "w") as f:
+            f.write(default_conf)
+        logger.debug(f"create gitc.conf -> {conf_file_name}")
+    # 读取配置文件
+    import configparser
+    config = configparser.ConfigParser()
+    config.read("gitc.conf")
+    _host = config.get("proxy", "host")
+    _port = config.getint("proxy", "port")
+    logger.debug(f"get configure from {conf_file_name} -> {_host=}, {_port=}")
+    return _host, _port
+
+
 def main_cli():
     args = init_cli()
     if not args.debug:
         # 将日志等级设置为INFO
         logger.remove()
         logger.add(sys.stdout, level="INFO")
-
+    host, port = init_conf()
     logger.debug(f"{args=}")
     if args.set_proxy:
-        GitCloneProxy(args, proxy_host, proxy_port).set_proxy()
+        GitCloneProxy(args, host, port).set_proxy()
         return
     elif args.unset_proxy:
-        GitCloneProxy(args, proxy_host, proxy_port).unset_proxy()
+        GitCloneProxy(args, host, port).unset_proxy()
         return
-    if not args.origin:
+    elif not args.origin:
         logger.error("origin is empty")
         return
-    with GitCloneProxy(args, proxy_host, proxy_port) as proxy:
+    with GitCloneProxy(args, host, port) as proxy:
         proxy.clone()
 
 
