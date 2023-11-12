@@ -1,17 +1,10 @@
 # Git使用本地代理来克隆项目
 
-## 1. 配置
+## 1. 使用
 
-1. 克隆本项目
-2. 为项目 `bin` 配置环境变量
-3. 修改 `bin/gitc.bat` 将其中的路径配置成 gitc.py 的绝对路径
-4. 修改 `gitc.py` 中的 `proxy_host`, `proxy_port` 改为你的代理配置
-5. 安装依赖
-   ```shell
-   pip install loguru
-   ```
+推荐为程序配置环境变量, 这样就可以在任意目录下使用了✔
 
-## 2. 使用
+```shell
 
 在你的工作目录执行
 
@@ -22,23 +15,34 @@
 执行效果
 ![img.png](img/img.png)
 
-## 3. fuck
+更多方式
+
+```shell
+gitc -h
+```
+
+## 2. 开发
+
+安装依赖
+
+```shell
+pip install -r requirements.txt
+```
+
+构建
+
+[build.md](./build.md)
+
+## 3. fuck😒
 
 代码推送过程中遇到了比较常见的问题
 > fatal: unable to access 'https://github.com/3181538941/git_proxy.git/': OpenSSL SSL_read: Connection was reset, errno 10054
 
 这种情况下就需要设置代理, 我意识到 需要脚本来实现设置代理和取消设置代理
 
-所以添加了两个脚本 `bin/gsp.git`, `bin/gup.git`
+所以添加了两个脚本 `-s`, `-u`
 
-分别对应 `git set proxy` 和 `git unset proxy` 的缩写
-
-那这样的话 `gitc.py` 脚本也就相当于
-> gsp
->
-> git clone ...
->
-> gup
+可以快捷地设置和取消设置git proxy
 
 ## 4. 原理
 

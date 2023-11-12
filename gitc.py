@@ -39,7 +39,7 @@ class GitCloneProxy:
 
     def clone(self):
         clone_cmd = f"git clone {self.args.origin} " + " ".join(self.args.git_args)
-        logger.info(f"<{clone_cmd=}>")
+        logger.debug(f"<{clone_cmd=}>")
         # 输出到终端
         res = subprocess.run(clone_cmd, stdout=sys.stdout, stderr=sys.stderr, text=True, shell=True)
         if res.returncode == 0:
