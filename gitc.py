@@ -138,13 +138,13 @@ def main_cli():
     logger.debug(f"{args=}")
     if args.set_proxy:
         GitCloneProxy(args, proxy_host, proxy_port).set_proxy()
-        exit()
+        return
     elif args.unset_proxy:
         GitCloneProxy(args, proxy_host, proxy_port).unset_proxy()
-        exit()
+        return
     if not args.origin:
         logger.error("origin is empty")
-        exit()
+        return
     with GitCloneProxy(args, proxy_host, proxy_port) as proxy:
         proxy.clone()
 
