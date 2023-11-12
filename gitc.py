@@ -10,8 +10,8 @@ from loguru import logger
 # 获取当前脚本的绝对路径
 script_dir = os.path.dirname(os.path.abspath(__file__))
 default_conf = f"""[proxy]
-    host = 127.0.0.1
-    port = 7890
+host = 127.0.0.1
+port = 7890
 """
 
 
