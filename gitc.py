@@ -163,6 +163,8 @@ def main_cli():
         return
     elif not args.origin:
         logger.error("origin is empty")
+        # 按任意键退出
+        os.system("pause")
         return
     with GitCloneProxy(args, host, port) as proxy:
         proxy.clone()
