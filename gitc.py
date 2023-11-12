@@ -131,19 +131,26 @@ usage: git clone [<options>] [--] <repo> [<dir>]
 
 
 def init_conf():
-    # 如果程序所在目录没有 gitc.conf 文件，则创建一个
-    conf_file_name = os.path.join(script_dir, "gitc.conf")
-    if not os.path.exists(conf_file_name):
-        with open(conf_file_name, "w") as f:
+    # 在用户的主目录下创建 .gitc 目录
+    home_dir = os.path.expanduser("~")
+    conf_dir = os.path.join(home_dir, ".gitc")
+    if not os.path.exists(conf_dir):
+        os.makedirs(conf_dir, exist_ok=True)
+    # 在 .gitc 目录中创建 gitc.conf 文件
+    conf_file = os.path.join(conf_dir, "gitc.conf")
+    logger.debug(conf_file)
+    if not os.path.exists(conf_file):
+        with open(conf_file, "w") as f:
             f.write(default_conf)
-        logger.debug(f"create gitc.conf -> {conf_file_name}")
+        logger.debug(f"检测到配置文件不存在, 创建之🦨 -> {conf_file}")
+
     # 读取配置文件
     import configparser
     config = configparser.ConfigParser()
-    config.read("gitc.conf")
+    config.read(conf_file)
     _host = config.get("proxy", "host")
     _port = config.getint("proxy", "port")
-    logger.debug(f"get configure from {conf_file_name} -> {_host=}, {_port=}")
+    logger.debug(f"从{conf_file}配置文件读取到 -> {_host=}, {_port=}")
     return _host, _port
 
 
@@ -162,7 +169,7 @@ def main_cli():
         GitCloneProxy(args, host, port).unset_proxy()
         return
     elif not args.origin:
-        logger.error("origin is empty")
+        logger.error("克隆地址不能为空")
         # 按任意键退出
         os.system("pause")
         return
