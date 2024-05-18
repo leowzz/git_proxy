@@ -75,3 +75,20 @@ pip install -r requirements.txt
     git config --global --unset https.proxy
     ```
 
+# 5. Todo
+
+- [ ] 支持查看配置 gitc config ls
+- [ ] 支持快速修改配置 gitc config set
+- [ ] 支持直接代理git模式
+- [ ] 支持代理配置切换
+- [ ] 增加更多的代理
+- [ ] 增加更多的命令
+- [ ] 增加更多的功能
+- [ ] 增加更多的测试
+- [ ] 增加更多的文档
+- [ ] 增加更多的注释
+- [ ] 增加更多的日志
+- [ ] 增加更多的错误处理
+- [ ] 增加更多的异常处理
+- [ ] 增加更多的功能
+
