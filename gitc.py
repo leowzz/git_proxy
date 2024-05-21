@@ -1,4 +1,5 @@
-#!/usr/bin/env python3
+import configparser
+# !/usr/bin/env python3
 # -*- coding:utf-8 -*-
 import os
 import subprocess
@@ -132,29 +133,38 @@ usage: git clone [<options>] [--] <repo> [<dir>]
 """
 
 
+def create_default_conf(conf_file):
+    with open(conf_file, "w") as f:
+        f.write(default_conf)
+    logger.info(f"检测到配置文件不存在, 创建之🦨 -> {conf_file}")
+
+
+def read_conf(conf_file):
+    config = configparser.ConfigParser()
+    config.read(conf_file)
+
+    try:
+        _host = config.get("proxy", "host")
+        _port = config.getint("proxy", "port")
+        log_level = config.get("log", "level")
+        logger.debug(f"从 <{conf_file}> 配置文件读取到 -> {_host=}, {_port=}")
+        return _host, _port, log_level
+    except (configparser.NoSectionError, configparser.NoOptionError) as e:
+        logger.error(f"配置文件读取错误: {e}")
+        sys.exit(1)
+
+
 def init_conf():
-    # 在用户的主目录下创建 .gitc 目录
     home_dir = os.path.expanduser("~")
     conf_dir = os.path.join(home_dir, ".gitc")
     if not os.path.exists(conf_dir):
         os.makedirs(conf_dir, exist_ok=True)
-    # 在 .gitc 目录中创建 gitc.conf 文件
-    conf_file = os.path.join(conf_dir, "gitc.conf")
-    logger.debug(conf_file)
-    if not os.path.exists(conf_file):
-        with open(conf_file, "w") as f:
-            f.write(default_conf)
-        logger.debug(f"检测到配置文件不存在, 创建之🦨 -> {conf_file}")
 
-    # 读取配置文件
-    import configparser
-    config = configparser.ConfigParser()
-    config.read(conf_file)
-    _host = config.get("proxy", "host")
-    _port = config.getint("proxy", "port")
-    log_level = config.get("log", "level")
-    logger.debug(f"从{conf_file}配置文件读取到 -> {_host=}, {_port=}")
-    return _host, _port, log_level
+    conf_file = os.path.join(conf_dir, "gitc.conf")
+    if not os.path.exists(conf_file):
+        create_default_conf(conf_file)
+
+    return read_conf(conf_file)
 
 
 def main_cli():

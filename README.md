@@ -18,7 +18,7 @@
 在你的工作目录执行
 
    ```shell
-   gitc https://github.com/3181538941/git_proxy.git
+   gitc clone https://github.com/3181538941/git_proxy.git
    ```
 
 执行效果
