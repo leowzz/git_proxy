@@ -41,6 +41,11 @@ class GitProxy:
             os.system(f"git config --global --unset {k}")
         logger.info(f"finish with unset proxy")
 
+    def get_proxy(self):
+        for k, _ in self.proxy_conf.items():
+            output = os.popen(f"git config --global --get {k}")
+            logger.info(f"{k}={output.read().strip()}")
+
     def clone(self):
         clone_cmd = f"git clone {self.args.origin} " + " ".join(self.args.git_args)
         logger.debug(f"<{clone_cmd=}>")
@@ -75,6 +80,7 @@ def init_cli():
     # 添加基础参数 set unset proxy ...
     parser.add_argument('-s', '--set-proxy', action='store_true', help="set proxy")
     parser.add_argument('-u', '--unset-proxy', action='store_true', help="unset proxy")
+    parser.add_argument('-g', '--get-proxy', action='store_true', help="get proxy")
 
     # 放行所有git命令的参数
     parser.add_argument('git_args', nargs=argparse.REMAINDER, help="git 原始参数")
@@ -186,6 +192,8 @@ def main_cli():
         proxy.set_proxy()
     elif args.unset_proxy:
         proxy.unset_proxy()
+    elif args.get_proxy:
+        proxy.get_proxy()
     else:
         with proxy as proxy_session:
             proxy_session.execute_git_command()
