@@ -19,7 +19,7 @@ level = INFO
 """
 
 
-class GitCloneProxy:
+class GitProxy:
     """
     git clone proxy
     """
@@ -71,6 +71,10 @@ class GitCloneProxy:
 def init_cli():
     import argparse
     parser = argparse.ArgumentParser(description="gitc")
+
+    # 添加基础参数 set unset proxy ...
+    parser.add_argument('-s', '--set-proxy', action='store_true', help="set proxy")
+    parser.add_argument('-u', '--unset-proxy', action='store_true', help="unset proxy")
 
     # 放行所有git命令的参数
     parser.add_argument('git_args', nargs=argparse.REMAINDER, help="git 原始参数")
@@ -160,7 +164,7 @@ def init_conf():
     if not os.path.exists(conf_dir):
         os.makedirs(conf_dir, exist_ok=True)
 
-    conf_file = os.path.join(conf_dir, "gitc.conf")
+    conf_file = os.path.join(conf_dir, "gitc.ini")
     if not os.path.exists(conf_file):
         create_default_conf(conf_file)
 
@@ -174,10 +178,17 @@ def main_cli():
         # 将日志等级设置为INFO
         logger.remove()
         logger.add(sys.stdout, level=log_level)
-    logger.debug(f"{args=}")
+    logger.debug(f"{args=}, {host=}, {port=}, {log_level=}")
 
-    with GitCloneProxy(args, host, port) as proxy:
-        proxy.execute_git_command()
+    proxy = GitProxy(args, host, port)
+
+    if args.set_proxy:
+        proxy.set_proxy()
+    elif args.unset_proxy:
+        proxy.unset_proxy()
+    else:
+        with proxy as proxy_session:
+            proxy_session.execute_git_command()
 
 
 if __name__ == '__main__':
