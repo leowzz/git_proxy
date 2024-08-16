@@ -6,9 +6,11 @@ import (
 	"log"
 	"os"
 	"os/exec"
+	"os/signal"
 	"path/filepath"
 	"strings"
-	
+	"syscall"
+
 	"github.com/go-ini/ini"
 	"github.com/spf13/pflag"
 )
@@ -59,13 +61,33 @@ func (gp *GitProxy) getProxy() {
 }
 
 func (gp *GitProxy) executeGitCommand() {
-	gitCmd := append([]string{}, gp.args...)
-	cmd := exec.Command("git", gitCmd...)
-	cmd.Stdout = os.Stdout
-	cmd.Stderr = os.Stderr
-	if err := cmd.Run(); err != nil {
-		log.Fatalf("Failed to execute git command: %v", err)
+	// 设置代理
+	gp.setProxy()
+	defer gp.unsetProxy()
+
+	// 捕获中断信号
+	sigChan := make(chan os.Signal, 1)
+	signal.Notify(sigChan, syscall.SIGINT, syscall.SIGTERM)
+	done := make(chan error, 1)
+
+	go func() {
+		gitCmd := append([]string{}, gp.args...)
+		cmd := exec.Command("git", gitCmd...)
+		cmd.Stdout = os.Stdout
+		cmd.Stderr = os.Stderr
+		done <- cmd.Run()
+	}()
+
+	select {
+	case err := <-done:
+		if err != nil {
+			gp.unsetProxy()
+			log.Fatalf("Failed to execute git command: %v", err)
+		}
+	case sig := <-sigChan:
+		log.Printf("Received signal: %v, cleaning up...", sig)
 	}
+
 }
 
 func createDefaultConf(confFile string) {
@@ -156,4 +178,5 @@ func main() {
 	default:
 		proxy.executeGitCommand()
 	}
+
 }
