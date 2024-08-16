@@ -58,16 +58,6 @@ func (gp *GitProxy) getProxy() {
 	}
 }
 
-func (gp *GitProxy) clone() {
-	cloneCmd := append([]string{"clone"}, gp.args...)
-	cmd := exec.Command("git", cloneCmd...)
-	cmd.Stdout = os.Stdout
-	cmd.Stderr = os.Stderr
-	if err := cmd.Run(); err != nil {
-		log.Fatalf("Failed to clone repo: %v", err)
-	}
-}
-
 func (gp *GitProxy) executeGitCommand() {
 	gitCmd := append([]string{}, gp.args...)
 	cmd := exec.Command("git", gitCmd...)
@@ -132,7 +122,20 @@ func main() {
 	setProxy := pflag.BoolP("set-proxy", "s", false, "Set proxy")
 	unsetProxy := pflag.BoolP("unset-proxy", "u", false, "Unset proxy")
 	getProxy := pflag.BoolP("get-proxy", "g", false, "Get proxy")
+	help := pflag.BoolP("help", "h", false, "Show this help message")
+	pflag.Usage = func() {
+		fmt.Fprintf(os.Stderr, "Usage: %s [OPTIONS] [GIT_COMMAND]\n", os.Args[0])
+		fmt.Fprintf(os.Stderr, "\nOptions:\n")
+		pflag.PrintDefaults()
+		fmt.Fprintf(os.Stderr, "\nGit Commands:\n")
+		fmt.Fprintf(os.Stderr, "  <git_command>       Any other git command, such as clone: `gitc clone <your repo>`\n")
+	}
 	pflag.Parse()
+
+	if *help {
+		pflag.Usage()
+		return
+	}
 
 	host, port, logLevel := initConf()
 	log.SetFlags(log.LstdFlags | log.Lshortfile)
