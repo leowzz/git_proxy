@@ -2,15 +2,15 @@ package main
 
 import (
 	"bufio"
-	"flag"
 	"fmt"
 	"log"
 	"os"
 	"os/exec"
 	"path/filepath"
 	"strings"
-
+	
 	"github.com/go-ini/ini"
+	"github.com/spf13/pflag"
 )
 
 const defaultConf = `[proxy]
@@ -129,10 +129,10 @@ func initConf() (string, int, string) {
 }
 
 func main() {
-	setProxy := flag.Bool("set-proxy", false, "Set proxy")
-	unsetProxy := flag.Bool("unset-proxy", false, "Unset proxy")
-	getProxy := flag.Bool("get-proxy", false, "Get proxy")
-	flag.Parse()
+	setProxy := pflag.BoolP("set-proxy", "s", false, "Set proxy")
+	unsetProxy := pflag.BoolP("unset-proxy", "u", false, "Unset proxy")
+	getProxy := pflag.BoolP("get-proxy", "g", false, "Get proxy")
+	pflag.Parse()
 
 	host, port, logLevel := initConf()
 	log.SetFlags(log.LstdFlags | log.Lshortfile)
@@ -140,7 +140,7 @@ func main() {
 		log.SetFlags(log.LstdFlags | log.Lshortfile | log.Lmicroseconds)
 	}
 
-	args := flag.Args()
+	args := pflag.Args()
 	proxy := NewGitProxy(args, host, port)
 
 	switch {
