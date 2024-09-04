@@ -30,7 +30,7 @@ proxy = ""
 ## 1. 使用
 
 推荐为程序配置环境变量, 这样就可以在任意目录下使用了✔
-工具的配置文件在 `~/.gitc/gitc.conf` 可以手动更改 host, port
+工具的配置文件在 `~/.gitc/gitc.ini` 可以手动更改 host, port
 
 ```shell
 
