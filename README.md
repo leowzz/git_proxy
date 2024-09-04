@@ -14,7 +14,8 @@
 
 经 [即刻 qaqland](https://web.okjike.com/u/d4139d2b-e61e-4bdf-a69c-1a671d5d1c2b) 提醒, 可以针对不同的域名配置代理,
 这样就可以避免影响其他git操作了,
-经查[Git-set-proxy-for-a-domain](https://morethink.cn/%E5%B7%A5%E5%85%B7/Git-set-proxy-for-a-domain/)
+
+ref: [git-config-proxy](https://git-scm.com/docs/git-config/2.22.0#EXAMPLES), [Git-set-proxy-for-a-domain](https://morethink.cn/%E5%B7%A5%E5%85%B7/Git-set-proxy-for-a-domain/)
 
 可以通过修改 `~/.gitconfig` 实现
 
